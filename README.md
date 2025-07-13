@@ -40,7 +40,6 @@
 📌 **Edit Distance** 📅 **2025-07-13** 💻 **Java** 🔗 [Problem Link](https://leetcode.com/problems/edit-distance/)
 ```
 
-```java
 class Solution {
     public int minDistance(String word1, String word2) {
         int m = word1.length();
