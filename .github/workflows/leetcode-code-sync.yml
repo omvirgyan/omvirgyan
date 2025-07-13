@@ -30,18 +30,20 @@ jobs:
 
           cd leetcode
 
-          # Extract metadata using grep
+          # Extract metadata
           title=$(grep -oP '> 📌 \*\*\K.*(?=\*\*)' README.md)
           date=$(grep -oP '> 📅 \*\*\K.*(?=\*\*)' README.md)
           lang=$(grep -oP '> 💻 \*\*Language:\*\* `\K[^`]*' README.md)
           url=$(grep -oP '\[Problem Link\]\(\K[^\)]*' README.md)
+          runtime=$(grep -oP '> 🕒 \*\*Runtime:\*\* \K.*' README.md | head -1)
+          memory=$(grep -oP '> 💾 \*\*Memory:\*\* \K.*' README.md | head -1)
 
           if [ -z "$title" ] || [ -z "$url" ] || [ -z "$date" ] || [ -z "$lang" ]; then
-            echo "❌ Error: Missing metadata in leetcode/README.md"
+            echo "❌ Missing required metadata. Aborting."
             exit 1
           fi
 
-          # Extract code block (remove both ```java and ending ```)
+          # Extract code block (strip triple backticks)
           sed -n '/^## ✅ Submitted Code$/,/^```$/{ 
             /^## ✅ Submitted Code$/d
             /^```[a-z]*$/d
@@ -51,18 +53,30 @@ jobs:
 
           cd ..
 
-          # Capitalize language name (e.g., java → Java)
+          # Capitalize language name (Java, Python, etc.)
           lang_capitalized="$(tr '[:lower:]' '[:upper:]' <<< ${lang:0:1})${lang:1}"
 
-          # Create final block without language tag in code block
+          # Format block with metadata, highlighting, collapsible code
           {
-            echo "📌 **${title}** 📅 **${date}** 💻 **${lang_capitalized}** 🔗 [Problem Link](${url})"
-            echo '```'
+            echo '### 🧠 Latest LeetCode Submission'
+            echo
+            echo "> 📌 **Problem:** [${title}](${url})  "
+            echo "> 🗓️ **Date:** ${date}  "
+            echo "> 🧑‍💻 **Language:** ${lang_capitalized}  "
+            if [ -n "$runtime" ]; then echo "> 🕒 **Runtime:** ${runtime}  "; fi
+            if [ -n "$memory" ]; then echo "> 💾 **Memory:** ${memory}  "; fi
+            echo
+            echo '<details>'
+            echo '<summary>📄 View Solution</summary>'
+            echo
+            echo '```'"$lang"
             cat code_only.txt
             echo '```'
+            echo
+            echo '</details>'
           } > wrapped_code.txt
 
-          # Inject into README.md between markers
+          # Inject between markers in README
           awk -v s="$START" -v e="$END" '
             BEGIN { print_block=1 }
             $0 ~ s {
