@@ -1,19 +1,9 @@
-
----
-
-## ✅ 2. Updated GitHub Actions Workflow (`.github/workflows/sync-leetcode.yml`)
-
-This updated version ensures that:
-- The code block is inside ` ```java ` and ` ``` `.
-- The `<!-- LEETCODE-LAST-SUBMISSION:END -->` marker is **outside** the Java block.
-
-```yaml
 name: 🔁 Sync LeetCode Latest Code to Profile README
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:    # ✅ Enables manual trigger via GitHub UI
   schedule:
-    - cron: '0 */6 * * *'  # Every 6 hours
+    - cron: '0 */6 * * *'   # ✅ Runs every 6 hours (you can change)
 
 jobs:
   sync-latest-code:
@@ -23,14 +13,14 @@ jobs:
       - name: 📥 Checkout Profile README Repo
         uses: actions/checkout@v3
         with:
-          token: ${{ secrets.GH_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}  # ✅ Use built-in token
           path: profile
 
       - name: 📥 Checkout LeetCode Auto Repo
         uses: actions/checkout@v3
         with:
           repository: omvirgyan/leetcode-auto-sync
-          token: ${{ secrets.GH_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           path: leetcode
 
       - name: 🛠️ Extract and Inject Code
@@ -38,31 +28,31 @@ jobs:
           START="<!-- LEETCODE-LAST-SUBMISSION:START -->"
           END="<!-- LEETCODE-LAST-SUBMISSION:END -->"
 
-          # Extract code block under '## ✅ Submitted Code'
+          # Extract LeetCode code block
           sed -n '/^## ✅ Submitted Code$/,/^```$/{ 
             /^## ✅ Submitted Code$/d
             /^```$/d
             p
           }' leetcode/README.md > code_only.txt
 
-          # Wrap code in ```java ... ```
-          echo "\`\`\`java" > wrapped_code.txt
-          cat code_only.txt >> wrapped_code.txt
-          echo "\`\`\`" >> wrapped_code.txt
+          # Wrap it in ```java block
+          {
+            echo '```java'
+            cat code_only.txt
+            echo '```'
+          } > wrapped_code.txt
 
-          # Inject it between markers in profile README
+          # Inject wrapped code into README between markers
           awk -v s="$START" -v e="$END" '
-            BEGIN { in_block=0 }
-            {
-              if ($0 ~ s) {
-                print;
-                while ((getline line < "wrapped_code.txt") > 0) print line;
-                in_block = 1;
-                next;
-              }
-              if ($0 ~ e) in_block = 0;
-              if (!in_block) print;
+            BEGIN { print_block=1 }
+            $0 ~ s {
+              print
+              while ((getline line < "wrapped_code.txt") > 0) print line
+              print_block=0
+              next
             }
+            $0 ~ e { print_block=1 }
+            print_block { print }
           ' profile/README.md > profile/README.tmp
 
           mv profile/README.tmp profile/README.md
