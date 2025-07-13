@@ -38,7 +38,7 @@
 
 <!-- LEETCODE-LAST-SUBMISSION:START -->
 📌 **Edit Distance** 📅 **2025-07-13** 💻 **Java** 🔗 [Problem Link](https://leetcode.com/problems/edit-distance/)
-```java
+```
 
 ```java
 class Solution {
