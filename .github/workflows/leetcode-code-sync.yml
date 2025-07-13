@@ -1,9 +1,9 @@
-name: Sync LeetCode Latest Code to Profile README
+name: 🔁 Sync LeetCode Latest Code to Profile README
 
 on:
   workflow_dispatch:   # Manual trigger
   schedule:
-    - cron: '0 */6 * * *'  # Run every 6 hours
+    - cron: '0 */6 * * *'  # Every 6 hours
 
 jobs:
   sync-latest-code:
@@ -11,14 +11,14 @@ jobs:
 
     steps:
       # Step 1: Checkout Profile README Repository
-      - name: Checkout Profile README Repo
+      - name: 📥 Checkout Profile README Repo
         uses: actions/checkout@v3
         with:
           token: ${{ secrets.GH_TOKEN }}
           path: profile
 
-      # Step 2: Checkout LeetCode Auto Repository
-      - name: Checkout LeetCode Auto Repo
+      # Step 2: Checkout LeetCode Auto Sync Repository
+      - name: 📥 Checkout LeetCode Auto Repo
         uses: actions/checkout@v3
         with:
           repository: omvirgyan/leetcode-auto-sync
@@ -26,46 +26,42 @@ jobs:
           path: leetcode
 
       # Step 3: Extract Raw Code and Inject into Profile README
-      - name: Extract and Inject Code
+      - name: 🛠️ Extract and Inject Code
         run: |
-          # Define markers for injection
+          # Define markers
           START="<!-- LEETCODE-LAST-SUBMISSION:START -->"
           END="<!-- LEETCODE-LAST-SUBMISSION:END -->"
 
-          # Extract raw code inside fenced code block after "## ✅ Submitted Code"
+          # Extract Java code from fenced block under "## ✅ Submitted Code"
           sed -n '/^## ✅ Submitted Code$/,/^```$/{ 
             /^## ✅ Submitted Code$/d
             /^```$/d
             p
           }' leetcode/README.md > code_only.txt
 
-          # Inject raw code between markers in profile README
+          # Inject between the markers in profile README
           awk -v s="$START" -v e="$END" '
             BEGIN { printit=1 }
-            $0 ~ s { 
-              print; 
-              while ((getline line < "code_only.txt") > 0) print line; 
-              printit=0; 
-              next 
+            $0 ~ s {
+              print;
+              while ((getline line < "code_only.txt") > 0) print line;
+              printit=0;
+              next
             }
             $0 ~ e { printit=1 }
             printit
           ' profile/README.md > profile/README.tmp
 
-          # Replace the original README with the updated content
+          # Replace original README with updated one
           mv profile/README.tmp profile/README.md
 
       # Step 4: Commit and Push Changes
-      - name: Commit and Push Changes
+      - name: 🚀 Commit and Push Changes
         working-directory: profile
         run: |
-          # Configure Git user details
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          
-          # Stage and commit changes
+
           git add README.md
-          git commit -m "🔁 Auto-sync latest LeetCode solution" || echo "No changes to commit"
-          
-          # Push changes to the repository
+          git commit -m "✨🔁 Synced latest LeetCode solution - auto update" || echo "No changes to commit"
           git push
