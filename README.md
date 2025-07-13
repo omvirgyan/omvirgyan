@@ -37,8 +37,16 @@
 ## 🧠 Latest LeetCode Submission
 
 <!-- LEETCODE-LAST-SUBMISSION:START -->
-📌 **Edit Distance** 📅 **2025-07-13** 💻 **Java** 🔗 [Problem Link](https://leetcode.com/problems/edit-distance/)
-```
+### 🧠 Latest LeetCode Submission
+
+> 📌 **Problem:** [Edit Distance](https://leetcode.com/problems/edit-distance/)  
+> 🗓️ **Date:** 2025-07-13  
+> 🧑‍💻 **Language:** Java  
+
+<details>
+<summary>📄 View Solution</summary>
+
+```java
 
 class Solution {
     public int minDistance(String word1, String word2) {
@@ -67,6 +75,8 @@ class Solution {
     }
 }
 ```
+
+</details>
 <!-- LEETCODE-LAST-SUBMISSION:END -->
 
 ---
