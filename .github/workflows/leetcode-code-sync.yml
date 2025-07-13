@@ -1,46 +1,51 @@
-name: Sync LeetCode Latest Code to Profile README
+name: 🔁 Sync Latest LeetCode Solution
 
 on:
-  workflow_dispatch:
   schedule:
-    - cron: '0 */6 * * *'  # every 6 hours
+    - cron: '0 */6 * * *'  # Runs every 6 hours
+  workflow_dispatch:       # Also allows manual trigger
 
 jobs:
-  sync-latest-code:
+  leetcode-sync:
     runs-on: ubuntu-latest
+
+    env:
+      LEETCODE_USER: ${{ secrets.LEETCODE_USER }}
+      LEETCODE_PASS: ${{ secrets.LEETCODE_PASS }}
+
     steps:
-      - name: Checkout Profile README Repo
+      - name: Checkout Repo
         uses: actions/checkout@v3
+
+      - name: Set Up Python
+        uses: actions/setup-python@v4
         with:
-          repository: omvirgyan/omvirgyan
-          token: ${{ secrets.GH_TOKEN }}
-          path: profile
+          python-version: '3.10'
 
-      - name: Checkout LeetCode Auto Repo
-        uses: actions/checkout@v3
-        with:
-          repository: omvirgyan/leetcode-auto-sync
-          token: ${{ secrets.GH_TOKEN }}
-          path: leetcode
-
-      - name: Inject Latest Code into Profile README
+      - name: Install Selenium
         run: |
-          START="<!-- LEETCODE-LAST-SUBMISSION:START -->"
-          END="<!-- LEETCODE-LAST-SUBMISSION:END -->"
-          CONTENT=$(awk '/^# 🧠 Latest LeetCode Submission/,/^```/' leetcode/README.md)
-          awk -v s="$START" -v e="$END" -v c="$CONTENT" '
-            BEGIN { printit=1 }
-            $0 ~ s { print; print c; printit=0; next }
-            $0 ~ e { printit=1 }
-            printit
-          ' profile/README.md > profile/README.tmp
-          mv profile/README.tmp profile/README.md
+          pip install selenium
 
-      - name: Commit and Push Changes
+      - name: Install Chrome & ChromeDriver
         run: |
-          cd profile
+          sudo apt-get update
+          sudo apt-get install -y wget unzip
+          wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+          sudo apt install -y ./google-chrome-stable_current_amd64.deb
+          CHROME_VERSION=$(google-chrome --version | grep -oP '\\d+\\.\\d+\\.\\d+')
+          CHROMEDRIVER_VERSION=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE")
+          wget -O /tmp/chromedriver.zip "https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip"
+          unzip /tmp/chromedriver.zip -d /usr/local/bin/
+          chmod +x /usr/local/bin/chromedriver
+
+      - name: Run Selenium Script
+        run: |
+          python scripts/selenium_script.py
+
+      - name: Commit Updated README
+        run: |
           git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git add README.md
+          git config user.email "actions@github.com"
+          git add README.md leetcode-solutions/
           git commit -m "🔁 Auto-sync latest LeetCode solution" || echo "No changes"
           git push
