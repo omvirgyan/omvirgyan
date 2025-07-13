@@ -37,6 +37,7 @@
 ## 🧠 Latest LeetCode Submission
 
 <!-- LEETCODE-LAST-SUBMISSION:START -->
+```java
 
 ```java
 class Solution {
@@ -65,6 +66,7 @@ class Solution {
         return dp[m][n];
     }
 }
+```
 <!-- LEETCODE-LAST-SUBMISSION:END -->
 
 ---
