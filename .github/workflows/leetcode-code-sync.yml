@@ -1,51 +1,43 @@
-name: 🔁 Sync Latest LeetCode Solution
+name: 🔁 Sync LeetCode Block from leetcode-auto-sync
 
 on:
   schedule:
-    - cron: '0 */6 * * *'  # Runs every 6 hours
-  workflow_dispatch:       # Also allows manual trigger
+    - cron: '0 */6 * * *'   # Every 6 hours
+  workflow_dispatch:
 
 jobs:
-  leetcode-sync:
+  sync-latest-leetcode:
     runs-on: ubuntu-latest
 
-    env:
-      LEETCODE_USER: ${{ secrets.LEETCODE_USER }}
-      LEETCODE_PASS: ${{ secrets.LEETCODE_PASS }}
-
     steps:
-      - name: Checkout Repo
+      - name: Checkout Profile Repo
         uses: actions/checkout@v3
 
-      - name: Set Up Python
-        uses: actions/setup-python@v4
+      - name: Clone LeetCode Auto Repo
+        uses: actions/checkout@v3
         with:
-          python-version: '3.10'
+          repository: omvirgyan/leetcode-auto-sync
+          path: leetcode-auto-sync
+          token: ${{ secrets.GH_TOKEN }}  # Add this in Secrets
 
-      - name: Install Selenium
+      - name: Extract Latest LeetCode Block
+        id: extract
         run: |
-          pip install selenium
+          awk '/<!-- LEETCODE-LAST-SUBMISSION:START -->/,/<!-- LEETCODE-LAST-SUBMISSION:END -->/' leetcode-auto-sync/README.md > block.txt
+          cat block.txt
 
-      - name: Install Chrome & ChromeDriver
+      - name: Replace Block in Profile README
         run: |
-          sudo apt-get update
-          sudo apt-get install -y wget unzip
-          wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-          sudo apt install -y ./google-chrome-stable_current_amd64.deb
-          CHROME_VERSION=$(google-chrome --version | grep -oP '\\d+\\.\\d+\\.\\d+')
-          CHROMEDRIVER_VERSION=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE")
-          wget -O /tmp/chromedriver.zip "https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip"
-          unzip /tmp/chromedriver.zip -d /usr/local/bin/
-          chmod +x /usr/local/bin/chromedriver
+          awk '
+          /<!-- LEETCODE-LAST-SUBMISSION:START -->/ { print; while (getline < "block.txt") print; next }
+          /<!-- LEETCODE-LAST-SUBMISSION:END -->/ { skip=0 }
+          !/<!-- LEETCODE-LAST-SUBMISSION:START -->/ && !skip' README.md > updated.md
+          mv updated.md README.md
 
-      - name: Run Selenium Script
-        run: |
-          python scripts/selenium_script.py
-
-      - name: Commit Updated README
+      - name: Commit & Push
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add README.md leetcode-solutions/
-          git commit -m "🔁 Auto-sync latest LeetCode solution" || echo "No changes"
+          git add README.md
+          git commit -m "📦 Synced latest LeetCode submission" || echo "No changes"
           git push
