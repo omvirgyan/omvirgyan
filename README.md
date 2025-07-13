@@ -37,6 +37,13 @@
 ## 🧠 Latest LeetCode Submission
 
 <!-- LEETCODE-LAST-SUBMISSION:START -->
+```text
+📌 Edit Distance
+📅 2025-07-13
+💻 Language: java
+🔗 Problem Link: https://leetcode.com/problems/edit-distance/
+```
+
 ```java
 
 ```java
