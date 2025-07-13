@@ -1,9 +1,9 @@
 name: 🔁 Sync LeetCode Latest Code to Profile README
 
 on:
-  workflow_dispatch:    # ✅ Enables manual trigger via GitHub UI
+  workflow_dispatch:    # Manual run option
   schedule:
-    - cron: '0 */6 * * *'   # ✅ Runs every 6 hours (you can change)
+    - cron: '0 */6 * * *'  # Every 6 hours
 
 jobs:
   sync-latest-code:
@@ -13,7 +13,7 @@ jobs:
       - name: 📥 Checkout Profile README Repo
         uses: actions/checkout@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}  # ✅ Use built-in token
+          token: ${{ secrets.GITHUB_TOKEN }}
           path: profile
 
       - name: 📥 Checkout LeetCode Auto Repo
@@ -23,26 +23,41 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           path: leetcode
 
-      - name: 🛠️ Extract and Inject Code
+      - name: 🛠️ Extract Metadata + Code and Inject
         run: |
           START="<!-- LEETCODE-LAST-SUBMISSION:START -->"
           END="<!-- LEETCODE-LAST-SUBMISSION:END -->"
 
-          # Extract LeetCode code block
+          cd leetcode
+
+          # Extract title and URL from LeetCode README
+          title=$(grep -oP '(?<=<!-- title: ).*(?= -->)' README.md)
+          url=$(grep -oP '(?<=<!-- url: ).*(?= -->)' README.md)
+
+          # Extract code inside ```java block under '## ✅ Submitted Code'
           sed -n '/^## ✅ Submitted Code$/,/^```$/{ 
             /^## ✅ Submitted Code$/d
             /^```$/d
             p
-          }' leetcode/README.md > code_only.txt
+          }' README.md > ../code_only.txt
 
-          # Wrap it in ```java block
+          cd ..
+
+          # Wrap with metadata and code block
           {
+            echo '```text'
+            echo "📌 ${title}"
+            echo "📅 $(date +'%Y-%m-%d')"
+            echo "💻 Language: Java"
+            echo "🔗 Problem Link: ${url}"
+            echo '```'
+            echo
             echo '```java'
             cat code_only.txt
             echo '```'
           } > wrapped_code.txt
 
-          # Inject wrapped code into README between markers
+          # Inject into profile/README.md
           awk -v s="$START" -v e="$END" '
             BEGIN { print_block=1 }
             $0 ~ s {
