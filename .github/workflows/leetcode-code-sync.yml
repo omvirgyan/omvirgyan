@@ -1,9 +1,9 @@
 name: 🔁 Sync LeetCode Latest Code to Profile README
 
 on:
-  workflow_dispatch:    # Allows manual run from Actions tab
+  workflow_dispatch:
   schedule:
-    - cron: '0 */6 * * *'  # Every 6 hours
+    - cron: '0 */6 * * *'
 
 jobs:
   sync-latest-code:
@@ -23,23 +23,25 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           path: leetcode
 
-      - name: 🛠️ Extract and Inject Latest Submission
+      - name: 🛠️ Extract Metadata + Code and Inject
         run: |
           START="<!-- LEETCODE-LAST-SUBMISSION:START -->"
           END="<!-- LEETCODE-LAST-SUBMISSION:END -->"
 
           cd leetcode
 
-          # Extract metadata using sed (POSIX-compatible)
-          title=$(sed -n 's/<!-- title: \(.*\) -->/\1/p' README.md)
-          url=$(sed -n 's/<!-- url: \(.*\) -->/\1/p' README.md)
+          # Extract metadata from nicely formatted markdown
+          title=$(grep -oP '> 📌 \*\*\K.*(?=\*\*)' README.md)
+          date=$(grep -oP '> 📅 \*\*\K.*(?=\*\*)' README.md)
+          lang=$(grep -oP '> 💻 \*\*Language:\*\* `\K[^`]*' README.md)
+          url=$(grep -oP '\[Problem Link\]\(\K[^\)]*' README.md)
 
-          if [ -z "$title" ] || [ -z "$url" ]; then
-            echo "❌ Error: Missing title or URL in leetcode/README.md"
+          if [ -z "$title" ] || [ -z "$url" ] || [ -z "$date" ] || [ -z "$lang" ]; then
+            echo "❌ Missing metadata in leetcode/README.md"
             exit 1
           fi
 
-          # Extract code block after '## ✅ Submitted Code'
+          # Extract raw code inside ```java block under '## ✅ Submitted Code'
           sed -n '/^## ✅ Submitted Code$/,/^```$/{ 
             /^## ✅ Submitted Code$/d
             /^```$/d
@@ -48,16 +50,16 @@ jobs:
 
           cd ..
 
-          # Wrap metadata + code
+          # Wrap in final output
           {
             echo '```text'
             echo "📌 ${title}"
-            echo "📅 $(date +'%Y-%m-%d')"
-            echo "💻 Language: Java"
+            echo "📅 ${date}"
+            echo "💻 Language: ${lang}"
             echo "🔗 Problem Link: ${url}"
             echo '```'
             echo
-            echo '```java'
+            echo '```'${lang}
             cat code_only.txt
             echo '```'
           } > wrapped_code.txt
