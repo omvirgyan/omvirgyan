@@ -37,7 +37,7 @@
 ## 🧠 Latest LeetCode Submission
 
 <!-- LEETCODE-LAST-SUBMISSION:START -->
-### 🧠 Latest LeetCode Submission
+### 
 
 > 📌 **Problem:** [Edit Distance](https://leetcode.com/problems/edit-distance/)  
 > 🗓️ **Date:** 2025-07-13  
