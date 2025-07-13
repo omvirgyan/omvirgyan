@@ -43,7 +43,7 @@ jobs:
             exit 1
           fi
 
-          # Extract only the code block without triple backticks
+          # Extract code block (remove triple backticks)
           sed -n '/^## ✅ Submitted Code$/,/^```$/{ 
             /^## ✅ Submitted Code$/d
             /^```[a-z]*$/d
@@ -56,7 +56,7 @@ jobs:
           # Capitalize language
           lang_capitalized="$(tr '[:lower:]' '[:upper:]' <<< ${lang:0:1})${lang:1}"
 
-          # Build final markdown block with always-visible code
+          # Generate final markdown with NO duplicate heading
           {
             echo '### 🧠 Latest LeetCode Submission'
             echo
@@ -73,7 +73,7 @@ jobs:
             echo '```'
           } > wrapped_code.txt
 
-          # Inject block into profile README between markers
+          # Inject the new content between START/END markers
           awk -v s="$START" -v e="$END" '
             BEGIN { print_block=1 }
             $0 ~ s {
