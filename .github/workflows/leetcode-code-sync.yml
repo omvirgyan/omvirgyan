@@ -1,9 +1,9 @@
 name: 🔁 Sync LeetCode Latest Code to Profile README
 
 on:
-  workflow_dispatch:    # Manual trigger from Actions tab
+  workflow_dispatch:
   schedule:
-    - cron: '0 */6 * * *'  # Run every 6 hours
+    - cron: '0 */6 * * *'  # Every 6 hours
 
 jobs:
   sync-latest-code:
@@ -30,7 +30,7 @@ jobs:
 
           cd leetcode
 
-          # Extract metadata from markdown
+          # Extract metadata using grep
           title=$(grep -oP '> 📌 \*\*\K.*(?=\*\*)' README.md)
           date=$(grep -oP '> 📅 \*\*\K.*(?=\*\*)' README.md)
           lang=$(grep -oP '> 💻 \*\*Language:\*\* `\K[^`]*' README.md)
@@ -41,19 +41,20 @@ jobs:
             exit 1
           fi
 
-          # Extract code inside the fenced block under '## ✅ Submitted Code'
+          # Extract code block (remove both ```java and ending ```)
           sed -n '/^## ✅ Submitted Code$/,/^```$/{ 
             /^## ✅ Submitted Code$/d
+            /^```[a-z]*$/d
             /^```$/d
             p
           }' README.md > ../code_only.txt
 
           cd ..
 
-          # Capitalize language (optional)
+          # Capitalize language name (e.g., java → Java)
           lang_capitalized="$(tr '[:lower:]' '[:upper:]' <<< ${lang:0:1})${lang:1}"
 
-          # Create final markdown output without ```java (just ```)
+          # Create final block without language tag in code block
           {
             echo "📌 **${title}** 📅 **${date}** 💻 **${lang_capitalized}** 🔗 [Problem Link](${url})"
             echo '```'
@@ -61,7 +62,7 @@ jobs:
             echo '```'
           } > wrapped_code.txt
 
-          # Inject between markers
+          # Inject into README.md between markers
           awk -v s="$START" -v e="$END" '
             BEGIN { print_block=1 }
             $0 ~ s {
