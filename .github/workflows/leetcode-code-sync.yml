@@ -1,9 +1,9 @@
 name: 🔁 Sync LeetCode Latest Code to Profile README
 
 on:
-  workflow_dispatch:    # Manual trigger
+  workflow_dispatch:    # Manual trigger from Actions tab
   schedule:
-    - cron: '0 */6 * * *'  # Every 6 hours
+    - cron: '0 */6 * * *'  # Run every 6 hours
 
 jobs:
   sync-latest-code:
@@ -41,7 +41,7 @@ jobs:
             exit 1
           fi
 
-          # Extract Java code under ## ✅ Submitted Code
+          # Extract code inside the fenced block under '## ✅ Submitted Code'
           sed -n '/^## ✅ Submitted Code$/,/^```$/{ 
             /^## ✅ Submitted Code$/d
             /^```$/d
@@ -50,13 +50,13 @@ jobs:
 
           cd ..
 
-          # Capitalize first letter of language
+          # Capitalize language (optional)
           lang_capitalized="$(tr '[:lower:]' '[:upper:]' <<< ${lang:0:1})${lang:1}"
 
-          # Generate final markdown block
+          # Create final markdown output without ```java (just ```)
           {
             echo "📌 **${title}** 📅 **${date}** 💻 **${lang_capitalized}** 🔗 [Problem Link](${url})"
-            echo '```'"$lang"
+            echo '```'
             cat code_only.txt
             echo '```'
           } > wrapped_code.txt
