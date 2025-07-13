@@ -58,7 +58,7 @@ jobs:
 
           # Generate final markdown with NO duplicate heading
           {
-            echo '### 🧠 Latest LeetCode Submission'
+            echo '### '
             echo
             echo "> 📌 **Problem:** [${title}](${url})  "
             echo "> 🗓️ **Date:** ${date}  "
