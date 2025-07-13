@@ -43,8 +43,7 @@
 > 🗓️ **Date:** 2025-07-13  
 > 🧑‍💻 **Language:** Java  
 
-<details>
-<summary>📄 View Solution</summary>
+#### 📄 Solution submitted by me
 
 ```java
 
@@ -75,8 +74,6 @@ class Solution {
     }
 }
 ```
-
-</details>
 <!-- LEETCODE-LAST-SUBMISSION:END -->
 
 ---
