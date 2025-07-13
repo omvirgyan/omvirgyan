@@ -27,13 +27,27 @@ jobs:
         run: |
           START="<!-- LEETCODE-LAST-SUBMISSION:START -->"
           END="<!-- LEETCODE-LAST-SUBMISSION:END -->"
-          CONTENT=$(awk '/^# 🧠 Latest LeetCode Submission/,/^```/{print}' leetcode/README.md)
-          awk -v s="$START" -v e="$END" -v c="$CONTENT" '
+          
+          # Extract only the code block (including the triple backticks) after the heading line
+          CONTENT=$(sed -n '/^# 🧠 Latest LeetCode Submission$/,/^```$/{
+            /^# 🧠 Latest LeetCode Submission$/d
+            /^```$/!p
+            /^```$/q
+          }' leetcode/README.md)
+          
+          # Wrap the extracted code with triple backticks, assuming Java code (adjust language if needed)
+          CODE_BLOCK="```java
+$CONTENT
+```"
+
+          # Replace content between markers with extracted code block
+          awk -v s="$START" -v e="$END" -v c="$CODE_BLOCK" '
             BEGIN { printit=1 }
             $0 ~ s { print; print c; printit=0; next }
             $0 ~ e { printit=1 }
             printit
           ' profile/README.md > profile/README.tmp
+          
           mv profile/README.tmp profile/README.md
 
       - name: Commit and Push
