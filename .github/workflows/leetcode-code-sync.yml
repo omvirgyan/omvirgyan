@@ -1,13 +1,14 @@
 name: Sync LeetCode Latest Code to Profile README
 
 on:
-  workflow_dispatch:   # Manual trigger enabled
+  workflow_dispatch:   # Manual trigger
   schedule:
-    - cron: '0 */6 * * *'  # Every 6 hours
+    - cron: '0 */6 * * *'  # Run every 6 hours
 
 jobs:
   sync-latest-code:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Profile README Repo
         uses: actions/checkout@v3
@@ -22,29 +23,22 @@ jobs:
           token: ${{ secrets.GH_TOKEN }}
           path: leetcode
 
-      - name: Extract and Inject Latest Code into Profile README
+      - name: Extract only raw code and inject into profile README
         run: |
           START="<!-- LEETCODE-LAST-SUBMISSION:START -->"
           END="<!-- LEETCODE-LAST-SUBMISSION:END -->"
 
-          # Extract code block (lines inside triple backticks) after heading
-          sed -n '/^# 🧠 Latest LeetCode Submission$/,/^```$/{ 
-            /^# 🧠 Latest LeetCode Submission$/d
-            /^```$/!p
-            /^```$/q
-          }' leetcode/README.md > code_block.txt
+          # Extract raw code inside fenced code block after "## ✅ Submitted Code"
+          sed -n '/^## ✅ Submitted Code$/,/^```$/{ 
+            /^## ✅ Submitted Code$/d
+            /^```$/d
+            p
+          }' leetcode/README.md > code_only.txt
 
-          # Wrap with triple backticks (change "java" if your code is in another language)
-          {
-            echo '```java'
-            cat code_block.txt
-            echo '```'
-          } > code_block_wrapped.txt
-
-          # Replace content between markers in profile README with extracted code block
+          # Inject raw code between markers in profile README
           awk -v s="$START" -v e="$END" '
             BEGIN { printit=1 }
-            $0 ~ s { print; while ((getline line < "code_block_wrapped.txt") > 0) print line; printit=0; next }
+            $0 ~ s { print; while ((getline line < "code_only.txt") > 0) print line; printit=0; next }
             $0 ~ e { printit=1 }
             printit
           ' profile/README.md > profile/README.tmp
