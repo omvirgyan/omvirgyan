@@ -10,12 +10,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout Profile README Repository
       - name: Checkout Profile README Repo
         uses: actions/checkout@v3
         with:
           token: ${{ secrets.GH_TOKEN }}
           path: profile
 
+      # Step 2: Checkout LeetCode Auto Repository
       - name: Checkout LeetCode Auto Repo
         uses: actions/checkout@v3
         with:
@@ -23,8 +25,10 @@ jobs:
           token: ${{ secrets.GH_TOKEN }}
           path: leetcode
 
-      - name: Extract only raw code and inject into profile README
+      # Step 3: Extract Raw Code and Inject into Profile README
+      - name: Extract and Inject Code
         run: |
+          # Define markers for injection
           START="<!-- LEETCODE-LAST-SUBMISSION:START -->"
           END="<!-- LEETCODE-LAST-SUBMISSION:END -->"
 
@@ -38,18 +42,30 @@ jobs:
           # Inject raw code between markers in profile README
           awk -v s="$START" -v e="$END" '
             BEGIN { printit=1 }
-            $0 ~ s { print; while ((getline line < "code_only.txt") > 0) print line; printit=0; next }
+            $0 ~ s { 
+              print; 
+              while ((getline line < "code_only.txt") > 0) print line; 
+              printit=0; 
+              next 
+            }
             $0 ~ e { printit=1 }
             printit
           ' profile/README.md > profile/README.tmp
 
+          # Replace the original README with the updated content
           mv profile/README.tmp profile/README.md
 
-      - name: Commit and Push changes
+      # Step 4: Commit and Push Changes
+      - name: Commit and Push Changes
         working-directory: profile
         run: |
+          # Configure Git user details
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
+          
+          # Stage and commit changes
           git add README.md
           git commit -m "🔁 Auto-sync latest LeetCode solution" || echo "No changes to commit"
+          
+          # Push changes to the repository
           git push
