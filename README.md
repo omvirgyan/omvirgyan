@@ -37,7 +37,16 @@
 ## 🧠 Latest LeetCode Submission
 
 <!-- LEETCODE-LAST-SUBMISSION:START -->
-<!-- This section will be automatically updated every 6 hours -->
+# 🧠 Latest LeetCode Submission
+
+> 📌 **Edit Distance**
+> 📅 **2025-07-13**
+> 💻 **Language:** `java`
+> 🔗 [Problem Link](https://leetcode.com/problems/edit-distance/)
+
+## ✅ Submitted Code
+
+```java
 <!-- LEETCODE-LAST-SUBMISSION:END -->
 
 ---
