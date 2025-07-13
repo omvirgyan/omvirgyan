@@ -30,7 +30,7 @@ jobs:
 
           cd leetcode
 
-          # Extract metadata
+          # Extract metadata from README
           title=$(grep -oP '> 📌 \*\*\K.*(?=\*\*)' README.md)
           date=$(grep -oP '> 📅 \*\*\K.*(?=\*\*)' README.md)
           lang=$(grep -oP '> 💻 \*\*Language:\*\* `\K[^`]*' README.md)
@@ -43,7 +43,7 @@ jobs:
             exit 1
           fi
 
-          # Extract code block (strip triple backticks)
+          # Extract only the code block without triple backticks
           sed -n '/^## ✅ Submitted Code$/,/^```$/{ 
             /^## ✅ Submitted Code$/d
             /^```[a-z]*$/d
@@ -53,10 +53,10 @@ jobs:
 
           cd ..
 
-          # Capitalize language name (Java, Python, etc.)
+          # Capitalize language
           lang_capitalized="$(tr '[:lower:]' '[:upper:]' <<< ${lang:0:1})${lang:1}"
 
-          # Format block with metadata, highlighting, collapsible code
+          # Build final markdown block with always-visible code
           {
             echo '### 🧠 Latest LeetCode Submission'
             echo
@@ -66,17 +66,14 @@ jobs:
             if [ -n "$runtime" ]; then echo "> 🕒 **Runtime:** ${runtime}  "; fi
             if [ -n "$memory" ]; then echo "> 💾 **Memory:** ${memory}  "; fi
             echo
-            echo '<details>'
-            echo '<summary>📄 View Solution</summary>'
+            echo '#### 📄 Solution submitted by me'
             echo
             echo '```'"$lang"
             cat code_only.txt
             echo '```'
-            echo
-            echo '</details>'
           } > wrapped_code.txt
 
-          # Inject between markers in README
+          # Inject block into profile README between markers
           awk -v s="$START" -v e="$END" '
             BEGIN { print_block=1 }
             $0 ~ s {
