@@ -1,9 +1,9 @@
 name: 🔁 Sync LeetCode Latest Code to Profile README
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:    # Manual trigger
   schedule:
-    - cron: '0 */6 * * *'
+    - cron: '0 */6 * * *'  # Every 6 hours
 
 jobs:
   sync-latest-code:
@@ -30,18 +30,18 @@ jobs:
 
           cd leetcode
 
-          # Extract metadata from nicely formatted markdown
+          # Extract metadata from markdown
           title=$(grep -oP '> 📌 \*\*\K.*(?=\*\*)' README.md)
           date=$(grep -oP '> 📅 \*\*\K.*(?=\*\*)' README.md)
           lang=$(grep -oP '> 💻 \*\*Language:\*\* `\K[^`]*' README.md)
           url=$(grep -oP '\[Problem Link\]\(\K[^\)]*' README.md)
 
           if [ -z "$title" ] || [ -z "$url" ] || [ -z "$date" ] || [ -z "$lang" ]; then
-            echo "❌ Missing metadata in leetcode/README.md"
+            echo "❌ Error: Missing metadata in leetcode/README.md"
             exit 1
           fi
 
-          # Extract raw code inside ```java block under '## ✅ Submitted Code'
+          # Extract Java code under ## ✅ Submitted Code
           sed -n '/^## ✅ Submitted Code$/,/^```$/{ 
             /^## ✅ Submitted Code$/d
             /^```$/d
@@ -50,16 +50,13 @@ jobs:
 
           cd ..
 
-          # Wrap in final output
+          # Capitalize first letter of language
+          lang_capitalized="$(tr '[:lower:]' '[:upper:]' <<< ${lang:0:1})${lang:1}"
+
+          # Generate final markdown block
           {
-            echo '```text'
-            echo "📌 ${title}"
-            echo "📅 ${date}"
-            echo "💻 Language: ${lang}"
-            echo "🔗 Problem Link: ${url}"
-            echo '```'
-            echo
-            echo '```'${lang}
+            echo "📌 **${title}** 📅 **${date}** 💻 **${lang_capitalized}** 🔗 [Problem Link](${url})"
+            echo '```'"$lang"
             cat code_only.txt
             echo '```'
           } > wrapped_code.txt
