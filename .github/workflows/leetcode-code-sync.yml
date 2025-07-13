@@ -1,7 +1,7 @@
 name: Sync LeetCode Latest Code to Profile README
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:   # Manual trigger enabled
   schedule:
     - cron: '0 */6 * * *'  # Every 6 hours
 
@@ -12,7 +12,6 @@ jobs:
       - name: Checkout Profile README Repo
         uses: actions/checkout@v3
         with:
-          repository: omvirgyan/omvirgyan
           token: ${{ secrets.GH_TOKEN }}
           path: profile
 
@@ -23,38 +22,40 @@ jobs:
           token: ${{ secrets.GH_TOKEN }}
           path: leetcode
 
-      - name: Inject Latest Code into Profile README
+      - name: Extract and Inject Latest Code into Profile README
         run: |
           START="<!-- LEETCODE-LAST-SUBMISSION:START -->"
           END="<!-- LEETCODE-LAST-SUBMISSION:END -->"
-          
-          # Extract only the code block (including the triple backticks) after the heading line
-          CONTENT=$(sed -n '/^# 🧠 Latest LeetCode Submission$/,/^```$/{
+
+          # Extract code block (lines inside triple backticks) after heading
+          sed -n '/^# 🧠 Latest LeetCode Submission$/,/^```$/{ 
             /^# 🧠 Latest LeetCode Submission$/d
             /^```$/!p
             /^```$/q
-          }' leetcode/README.md)
-          
-          # Wrap the extracted code with triple backticks, assuming Java code (adjust language if needed)
-          CODE_BLOCK="```java
-$CONTENT
-```"
+          }' leetcode/README.md > code_block.txt
 
-          # Replace content between markers with extracted code block
-          awk -v s="$START" -v e="$END" -v c="$CODE_BLOCK" '
+          # Wrap with triple backticks (change "java" if your code is in another language)
+          {
+            echo '```java'
+            cat code_block.txt
+            echo '```'
+          } > code_block_wrapped.txt
+
+          # Replace content between markers in profile README with extracted code block
+          awk -v s="$START" -v e="$END" '
             BEGIN { printit=1 }
-            $0 ~ s { print; print c; printit=0; next }
+            $0 ~ s { print; while ((getline line < "code_block_wrapped.txt") > 0) print line; printit=0; next }
             $0 ~ e { printit=1 }
             printit
           ' profile/README.md > profile/README.tmp
-          
+
           mv profile/README.tmp profile/README.md
 
-      - name: Commit and Push
+      - name: Commit and Push changes
+        working-directory: profile
         run: |
-          cd profile
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add README.md
-          git commit -m "🔁 Auto-sync latest LeetCode solution" || echo "No changes"
+          git commit -m "🔁 Auto-sync latest LeetCode solution" || echo "No changes to commit"
           git push
