@@ -37,14 +37,6 @@
 ## 🧠 Latest LeetCode Submission
 
 <!-- LEETCODE-LAST-SUBMISSION:START -->
-```java
-
-> 📌 **Edit Distance**
-> 📅 **2025-07-13**
-> 💻 **Language:** `java`
-> 🔗 [Problem Link](https://leetcode.com/problems/edit-distance/)
-
-## ✅ Submitted Code
 
 ```java
 class Solution {
@@ -73,7 +65,6 @@ class Solution {
         return dp[m][n];
     }
 }
-```
 <!-- LEETCODE-LAST-SUBMISSION:END -->
 
 ---
