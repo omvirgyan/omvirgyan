@@ -1,7 +1,7 @@
 name: 🔁 Sync LeetCode Latest Code to Profile README
 
 on:
-  workflow_dispatch:    # Manual run option
+  workflow_dispatch:    # Allows manual run from Actions tab
   schedule:
     - cron: '0 */6 * * *'  # Every 6 hours
 
@@ -23,18 +23,23 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           path: leetcode
 
-      - name: 🛠️ Extract Metadata + Code and Inject
+      - name: 🛠️ Extract and Inject Latest Submission
         run: |
           START="<!-- LEETCODE-LAST-SUBMISSION:START -->"
           END="<!-- LEETCODE-LAST-SUBMISSION:END -->"
 
           cd leetcode
 
-          # Extract title and URL from LeetCode README
-          title=$(grep -oP '(?<=<!-- title: ).*(?= -->)' README.md)
-          url=$(grep -oP '(?<=<!-- url: ).*(?= -->)' README.md)
+          # Extract metadata using sed (POSIX-compatible)
+          title=$(sed -n 's/<!-- title: \(.*\) -->/\1/p' README.md)
+          url=$(sed -n 's/<!-- url: \(.*\) -->/\1/p' README.md)
 
-          # Extract code inside ```java block under '## ✅ Submitted Code'
+          if [ -z "$title" ] || [ -z "$url" ]; then
+            echo "❌ Error: Missing title or URL in leetcode/README.md"
+            exit 1
+          fi
+
+          # Extract code block after '## ✅ Submitted Code'
           sed -n '/^## ✅ Submitted Code$/,/^```$/{ 
             /^## ✅ Submitted Code$/d
             /^```$/d
@@ -43,7 +48,7 @@ jobs:
 
           cd ..
 
-          # Wrap with metadata and code block
+          # Wrap metadata + code
           {
             echo '```text'
             echo "📌 ${title}"
@@ -57,7 +62,7 @@ jobs:
             echo '```'
           } > wrapped_code.txt
 
-          # Inject into profile/README.md
+          # Inject between markers
           awk -v s="$START" -v e="$END" '
             BEGIN { print_block=1 }
             $0 ~ s {
