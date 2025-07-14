@@ -3,7 +3,7 @@ name: 🔁 Sync LeetCode Latest Code to Profile README
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 */6 * * *'  # Every 6 hours
+    - cron: '*/31 * * * *'  # Every 6 hours
 
 jobs:
   sync-latest-code:
