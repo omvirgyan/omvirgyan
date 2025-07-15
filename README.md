@@ -39,7 +39,7 @@
 <!-- LEETCODE-LAST-SUBMISSION:START -->
 ### 
 
-> 📌 **Problem:** [Fibonacci Number](https://leetcode.com/problems/fibonacci-number/)  
+> 📌 **Problem:** [Min Cost Climbing Stairs](https://leetcode.com/problems/min-cost-climbing-stairs/)  
 > 🗓️ **Date:** 2025-07-15  
 > 🧑‍💻 **Language:** Java  
 
@@ -47,22 +47,21 @@
 
 ```java
 
-class Solution {
-   public int fibByDp(int n,int arr[]){
-    if(n==0 || n==1) return n;
-    if(arr[n]!=-1) return arr[n];
-    arr[n]=fibByDp(n-1,arr) + fibByDp(n-2,arr);
-    return arr[n];
-   }
+public class Solution {
+    public int minCost(int[] cost, int idx, int[] dp) {
+        if(idx == 0 || idx == 1) return cost[idx];
+        if(dp[idx] != -1) return dp[idx];
+        return dp[idx] = cost[idx] + Math.min(minCost(cost, idx - 1, dp), minCost(cost, idx - 2, dp));
+    }
 
-    public int fib(int n) {
-    int[] arr=new int[n+1];
-    Arrays.fill(arr,-1);
-    int ans =fibByDp(n,arr);
-    return ans;
-        
+    public int minCostClimbingStairs(int[] cost) {
+        int n = cost.length;
+        int[] dp = new int[n];
+        Arrays.fill(dp, -1);
+        return Math.min(minCost(cost, n - 1, dp), minCost(cost, n - 2, dp));
     }
 }
+
 ```
 <!-- LEETCODE-LAST-SUBMISSION:END -->
 
