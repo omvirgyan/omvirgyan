@@ -39,31 +39,30 @@
 <!-- LEETCODE-LAST-SUBMISSION:START -->
 ### 
 
-> 📌 **Problem:** [Pascal's Triangle II](https://leetcode.com/problems/pascals-triangle-ii/)  
-> 🗓️ **Date:** 2025-07-14  
+> 📌 **Problem:** [Fibonacci Number](https://leetcode.com/problems/fibonacci-number/)  
+> 🗓️ **Date:** 2025-07-15  
 > 🧑‍💻 **Language:** Java  
 
 #### 📄 Solution submitted by me
 
 ```java
 
-import java.util.*;
-
 class Solution {
-    public List<Integer> getRow(int rowIndex) {
-        List<Integer> row = new ArrayList<>();
-        row.add(1);
-        for (int i = 1; i <= rowIndex; i++) {
-            for (int j = row.size() - 1; j >= 1; j--) {
-                row.set(j, row.get(j) + row.get(j - 1));
-            }
-            row.add(1); // last element is always 1
-        }
+   public int fibByDp(int n,int arr[]){
+    if(n==0 || n==1) return n;
+    if(arr[n]!=-1) return arr[n];
+    arr[n]=fibByDp(n-1,arr) + fibByDp(n-2,arr);
+    return arr[n];
+   }
+
+    public int fib(int n) {
+    int[] arr=new int[n+1];
+    Arrays.fill(arr,-1);
+    int ans =fibByDp(n,arr);
+    return ans;
         
-        return row;
     }
 }
-
 ```
 <!-- LEETCODE-LAST-SUBMISSION:END -->
 
