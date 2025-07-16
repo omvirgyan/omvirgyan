@@ -39,8 +39,8 @@
 <!-- LEETCODE-LAST-SUBMISSION:START -->
 ### 
 
-> 📌 **Problem:** [Min Cost Climbing Stairs](https://leetcode.com/problems/min-cost-climbing-stairs/)  
-> 🗓️ **Date:** 2025-07-15  
+> 📌 **Problem:** [Jump Game](https://leetcode.com/problems/jump-game/)  
+> 🗓️ **Date:** 2025-07-16  
 > 🧑‍💻 **Language:** Java  
 
 #### 📄 Solution submitted by me
@@ -48,20 +48,18 @@
 ```java
 
 public class Solution {
-    public int minCost(int[] cost, int idx, int[] dp) {
-        if(idx == 0 || idx == 1) return cost[idx];
-        if(dp[idx] != -1) return dp[idx];
-        return dp[idx] = cost[idx] + Math.min(minCost(cost, idx - 1, dp), minCost(cost, idx - 2, dp));
-    }
-
-    public int minCostClimbingStairs(int[] cost) {
-        int n = cost.length;
-        int[] dp = new int[n];
-        Arrays.fill(dp, -1);
-        return Math.min(minCost(cost, n - 1, dp), minCost(cost, n - 2, dp));
+    public boolean canJump(int[] nums) {
+        int maxReach = 0; 
+        for (int i = 0; i < nums.length; i++) {
+            if (i > maxReach) {
+                return false;  
+            }
+            maxReach = Math.max(maxReach, i + nums[i]);  
+           
+        }
+        return true;
     }
 }
-
 ```
 <!-- LEETCODE-LAST-SUBMISSION:END -->
 
