@@ -39,7 +39,7 @@
 <!-- LEETCODE-LAST-SUBMISSION:START -->
 ### 
 
-> 📌 **Problem:** [N-th Tribonacci Number](https://leetcode.com/problems/n-th-tribonacci-number/)  
+> 📌 **Problem:** [House Robber](https://leetcode.com/problems/house-robber/)  
 > 🗓️ **Date:** 2025-07-18  
 > 🧑‍💻 **Language:** Java  
 
@@ -48,17 +48,18 @@
 ```java
 
 class Solution {
-    public int tribonacci(int n) {
-        if(n==0||n==1) return n;
-        if(n==2) return 1;
-        int[] dp=new int[n+1];
-        dp[0]=0;
-        dp[1]=1;
-        dp[2]=1;
-        for(int i=3;i<=n;i++){
-            dp[i]=dp[i-1]+dp[i-2]+dp[i-3];
-        }
-        return dp[n];
+    public int amountRob(int[] arr,int idx,int[] dp){
+        if(idx>=arr.length) return 0;
+        if(dp[idx]!=-1)return dp[idx];
+        int take=arr[idx]+ amountRob(arr,idx+2,dp);
+        int skip=amountRob(arr,idx+1,dp);
+        
+        return dp[idx]=Math.max(take,skip);
+    }
+    public int rob(int[] nums) {
+       int [] dp=new int[nums.length];
+       Arrays.fill(dp,-1);
+       return amountRob(nums,0,dp);
     }
 }
 ```
