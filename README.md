@@ -40,7 +40,7 @@
 ### 
 
 > 📌 **Problem:** [Count Square Submatrices with All Ones](https://leetcode.com/problems/count-square-submatrices-with-all-ones/)  
-> 🗓️ **Date:** 2025-07-25  
+> 🗓️ **Date:** 2025-07-26  
 > 🧑‍💻 **Language:** Java  
 
 #### 📄 Solution submitted by me
