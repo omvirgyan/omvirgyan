@@ -40,7 +40,7 @@
 ### 
 
 > 📌 **Problem:** [Longest Subarray With Maximum Bitwise AND](https://leetcode.com/problems/longest-subarray-with-maximum-bitwise-and/)  
-> 🗓️ **Date:** 2025-07-31  
+> 🗓️ **Date:** 2025-08-01  
 > 🧑‍💻 **Language:** Java  
 
 #### 📄 Solution submitted by me
