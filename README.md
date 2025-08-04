@@ -39,8 +39,8 @@
 <!-- LEETCODE-LAST-SUBMISSION:START -->
 ### 
 
-> 📌 **Problem:** [Excel Sheet Column Title](https://leetcode.com/problems/excel-sheet-column-title/)  
-> 🗓️ **Date:** 2025-08-03  
+> 📌 **Problem:** [N-Repeated Element in Size 2N Array](https://leetcode.com/problems/n-repeated-element-in-size-2n-array/)  
+> 🗓️ **Date:** 2025-08-04  
 > 🧑‍💻 **Language:** Java  
 
 #### 📄 Solution submitted by me
@@ -48,18 +48,15 @@
 ```java
 
 class Solution {
-    public String convertToTitle(int columnNumber) {
-        StringBuilder sb = new StringBuilder();
-        while (columnNumber > 0) {
-            columnNumber--;
-            int rem = columnNumber % 26;
-            sb.append((char)(rem + 'A'));
-            columnNumber /= 26;
+    public int repeatedNTimes(int[] nums) {
+        HashMap<Integer,Integer> map=new HashMap<>();
+        for(int i=0;i<nums.length;i++){
+            map.put(nums[i],map.getOrDefault(nums[i],0)+1);
+            if(map.get(nums[i])>1) return nums[i];
         }
-        return sb.reverse().toString();
+        return 0;
     }
 }
-
 ```
 <!-- LEETCODE-LAST-SUBMISSION:END -->
 
