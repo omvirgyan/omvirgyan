@@ -39,8 +39,8 @@
 <!-- LEETCODE-LAST-SUBMISSION:START -->
 ### 
 
-> 📌 **Problem:** [N-Repeated Element in Size 2N Array](https://leetcode.com/problems/n-repeated-element-in-size-2n-array/)  
-> 🗓️ **Date:** 2025-08-04  
+> 📌 **Problem:** [Longest Increasing Subsequence](https://leetcode.com/problems/longest-increasing-subsequence/)  
+> 🗓️ **Date:** 2025-08-05  
 > 🧑‍💻 **Language:** Java  
 
 #### 📄 Solution submitted by me
@@ -48,15 +48,28 @@
 ```java
 
 class Solution {
-    public int repeatedNTimes(int[] nums) {
-        HashMap<Integer,Integer> map=new HashMap<>();
-        for(int i=0;i<nums.length;i++){
-            map.put(nums[i],map.getOrDefault(nums[i],0)+1);
-            if(map.get(nums[i])>1) return nums[i];
+    public int lengthOfLIS(int[] nums) {
+        if (nums.length == 0) return 0;
+
+        int[] dp = new int[nums.length];
+        dp[0] = 1;
+        int ans = 1;
+
+        for (int i = 1; i < dp.length; i++) {
+            int max = 0;
+            for (int j = 0; j < i; j++) {
+                if (nums[i] > nums[j]) { 
+                    max = Math.max(max, dp[j]);
+                }
+            }
+            dp[i] = max + 1;
+            ans = Math.max(ans, dp[i]);
         }
-        return 0;
+
+        return ans;
     }
 }
+
 ```
 <!-- LEETCODE-LAST-SUBMISSION:END -->
 
