@@ -40,7 +40,7 @@
 ### 
 
 > 📌 **Problem:** [Longest Increasing Subsequence](https://leetcode.com/problems/longest-increasing-subsequence/)  
-> 🗓️ **Date:** 2025-08-05  
+> 🗓️ **Date:** 2025-08-06  
 > 🧑‍💻 **Language:** Java  
 
 #### 📄 Solution submitted by me
